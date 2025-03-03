@@ -27,6 +27,8 @@ class LoopPageController implements Listenable {
 
   bool _hasJumpedForwardsOnce = false;
 
+  static int shiftOffset = 1000000;
+
   /// Creates a LoopPageController with an immediate looping activation mode.
   /// It enables infinite looping behavior right from the first page.
   /// It allows setting a scroll mode, defaulting to the shortest path between pages.
@@ -40,18 +42,16 @@ class LoopPageController implements Listenable {
       LoopScrollMode scrollMode = LoopScrollMode.shortest,
       LoopActivationMode activationMode = LoopActivationMode.immediate})
       : assert(viewportFraction > 0.0),
-        _initialShiftedPage =
-            activationMode == LoopActivationMode.immediate ? 1000000 : 0,
-        _currentShiftedPage =
-            activationMode == LoopActivationMode.immediate ? 1000000 : 0,
+        _initialShiftedPage = activationMode == LoopActivationMode.immediate ? shiftOffset : 0,
+        _currentShiftedPage = activationMode == LoopActivationMode.immediate ? shiftOffset : 0,
         _itemCount = 0,
         _initialIndexShift = 0,
         initialPage = initialPage,
         scrollMode = scrollMode,
         _activationMode = activationMode,
         _pageController = PageController(
-          initialPage: initialPage +
-              (activationMode == LoopActivationMode.immediate ? 1000000 : 0),
+          initialPage:
+              initialPage + (activationMode == LoopActivationMode.immediate ? shiftOffset : 0),
           keepPage: keepPage,
           viewportFraction: viewportFraction,
         );
@@ -85,8 +85,8 @@ class LoopPageController implements Listenable {
     _pageController.notifyListeners();
   }
 
-  ScrollPosition createScrollPosition(ScrollPhysics physics,
-      ScrollContext context, ScrollPosition oldPosition) {
+  ScrollPosition createScrollPosition(
+      ScrollPhysics physics, ScrollContext context, ScrollPosition oldPosition) {
     return _pageController.createScrollPosition(physics, context, oldPosition);
   }
 
@@ -134,8 +134,7 @@ class LoopPageController implements Listenable {
 
     if (shiftedPage == _currentShiftedPage) return Future.value();
 
-    if (shiftedPage == _currentShiftedPage + 1 ||
-        shiftedPage == _currentShiftedPage - 1)
+    if (shiftedPage == _currentShiftedPage + 1 || shiftedPage == _currentShiftedPage - 1)
       return animateToPage(page, duration: duration, curve: curve);
 
     if (_pageController.viewportFraction == 1.0) _isAnimatingJumpToPage = true;
@@ -162,8 +161,7 @@ class LoopPageController implements Listenable {
     final int shiftedPage = _shiftPage(page);
     if (_currentShiftedPage != shiftedPage) {
       _currentShiftedPage = shiftedPage;
-      return _pageController.animateToPage(shiftedPage,
-          duration: duration, curve: curve);
+      return _pageController.animateToPage(shiftedPage, duration: duration, curve: curve);
     }
     return Future.value();
   }
@@ -192,8 +190,7 @@ class LoopPageController implements Listenable {
   ///
   /// The `duration` and `curve` arguments must not be null.
   Future<void> nextPage({required Duration duration, required Curve curve}) {
-    return animateToPage(_shiftPage(page.round()) + 1,
-        duration: duration, curve: curve);
+    return animateToPage(_shiftPage(page.round()) + 1, duration: duration, curve: curve);
   }
 
   /// Animates the controlled [LoopPageView] to the previous page.
@@ -202,18 +199,15 @@ class LoopPageController implements Listenable {
   /// The returned [Future] resolves when the animation completes.
   ///
   /// The `duration` and `curve` arguments must not be null.
-  Future<void> previousPage(
-      {required Duration duration, required Curve curve}) {
-    return animateToPage(_shiftPage(page.round()) - 1,
-        duration: duration, curve: curve);
+  Future<void> previousPage({required Duration duration, required Curve curve}) {
+    return animateToPage(_shiftPage(page.round()) - 1, duration: duration, curve: curve);
   }
 
   /// Changes index for which page is displayed in the controlled [LoopPageView]
   /// in order to enable infinite scrolling
 
   void _modJump() {
-    int shiftedPage =
-        _initialShiftedPage + _notShiftedIndex(_currentShiftedPage);
+    int shiftedPage = _initialShiftedPage + _notShiftedIndex(_currentShiftedPage);
 
     /// This code handles 'LoopActivationMode.afterFirstLoop'.
     /// '_hasJumpedForwardsOnce' becomes true when a forward loop completes once.
@@ -237,8 +231,7 @@ class LoopPageController implements Listenable {
 
   /// Changes a shifted index to a not shifted index.
   int _notShiftedIndex(int shiftedIndex) {
-    final int currentIndexShift =
-        _itemCount > 0 ? shiftedIndex % _itemCount : shiftedIndex;
+    final int currentIndexShift = _itemCount > 0 ? shiftedIndex % _itemCount : shiftedIndex;
 
     final int difference = currentIndexShift - _initialIndexShift;
 
@@ -251,8 +244,7 @@ class LoopPageController implements Listenable {
 
     final int instantCurrentShiftedPage = _currentShiftedPage;
 
-    final int currentNotShiftedPage =
-        _notShiftedIndex(instantCurrentShiftedPage);
+    final int currentNotShiftedPage = _notShiftedIndex(instantCurrentShiftedPage);
 
     if (currentNotShiftedPage == modPage) return instantCurrentShiftedPage;
 
@@ -293,8 +285,7 @@ class LoopPageController implements Listenable {
 
   void _updateItemCount(int itemCount) {
     _itemCount = itemCount;
-    _initialIndexShift =
-        _itemCount > 0 ? _initialShiftedPage % _itemCount : _initialShiftedPage;
+    _initialIndexShift = _itemCount > 0 ? _initialShiftedPage % _itemCount : _initialShiftedPage;
     _currentShiftedPage = _initialShiftedPage + initialPage;
   }
 }
