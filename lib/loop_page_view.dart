@@ -140,8 +140,11 @@ class _LoopPageViewState extends State<LoopPageView> {
               pageSnapping: widget.pageSnapping,
               dragStartBehavior: widget.dragStartBehavior,
               allowImplicitScrolling: widget.allowImplicitScrolling,
-              itemCount:
-                  widget.disableLooping ? LoopPageController.shiftOffset + widget.itemCount : null,
+              itemCount: widget.disableLooping
+                  ? _controller._activationMode == LoopActivationMode.immediate
+                      ? LoopPageController.shiftOffset
+                      : 0 + widget.itemCount
+                  : null,
             ),
           )
         : SizedBox.shrink();
